@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script>
+        const API_URL = 'http://localhost:3000/api/auth/register'; // Adjust the URL if needed
+
+        // Function to handle form submission and user registration
+        async function registerUser(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const payload = {
+                username,
+                email,
+                password
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.status === 201) {
+                    alert(result.message);
+                    window.location.href = 'index.html'; // Redirect to login page after successful registration
+                } else {
+                    alert(result.message || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Error during registration:', error);
+                alert('An error occurred during registration');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Register</h1>
+    <form id="registerForm" onsubmit="registerUser(event)">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" required><br><br>
+
+        <button type="submit">Register</button>
+
+        <p>Already have an account? <a href="index.html">Login here</a></p>
+    </form>
+</body>
+</html>

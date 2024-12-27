@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .user-info {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+        #trackingStatus {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-info">
+        <h2>Welcome, <span id="usernameDisplay">User</span></h2>
+    </div>
+
+    <h1>Location Tracking</h1>
+    <button onclick="startTracking()">Start Tracking</button>
+    <button onclick="stopTracking()">Stop Tracking</button>
+    
+    <div id="trackingStatus"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/location/track';
+        let trackingInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Retrieve values from localStorage
+            const token = localStorage.getItem('token');
+            const userId = localStorage.getItem('userId');
+            const username = localStorage.getItem('username');
+
+            // Redirect to login page if token or userId is missing
+            if (!token || !userId) {
+                alert('Please log in to access location tracking.');
+                window.location.href = '/index.html';
+                return;
+            }
+
+            // Display username if available
+            if (username) {
+                document.getElementById('usernameDisplay').textContent = username;
+            } else {
+                console.warn('Username not found in localStorage.');
+                document.getElementById('usernameDisplay').textContent = 'User';
+            }
+        });
+
+        async function sendLocation() {
+            try {
+                // Simulate location data for testing
+                const latitude = (Math.random() * 180 - 90).toFixed(6);
+                const longitude = (Math.random() * 360 - 180).toFixed(6);
+                const timestamp = new Date().toISOString();
+
+                // Fetch user data from localStorage
+                const token = localStorage.getItem('token');
+                const userId = localStorage.getItem('userId');
+
+                // Send location data to the API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        latitude: parseFloat(latitude),
+                        longitude: parseFloat(longitude),
+                        timestamp
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to send location.');
+                }
+
+                console.log('Location sent:', { userId, latitude, longitude, timestamp });
+                document.getElementById('trackingStatus').textContent = 
+                    `Last tracked: ${new Date().toLocaleString()}`;
+            } catch (error) {
+                console.error('Error sending location:', error);
+                document.getElementById('trackingStatus').textContent = 
+                    `Error: ${error.message}`;
+            }
+        }
+
+        function startTracking() {
+            if (trackingInterval) {
+                console.warn('Tracking is already running.');
+                return;
+            }
+
+            console.log('Starting location tracking...');
+            document.getElementById('trackingStatus').textContent = 'Tracking started...';
+            trackingInterval = setInterval(sendLocation, 4000); // Track every 4 seconds
+        }
+
+        function stopTracking() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+                console.log('Location tracking stopped.');
+                document.getElementById('trackingStatus').textContent = 'Tracking stopped.';
+            }
+        }
+    </script>
+</body>
+</html>

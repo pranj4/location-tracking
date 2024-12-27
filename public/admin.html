@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .admin-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .admin-menu a {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .admin-menu a:hover {
+            background-color: #45a049;
+        }
+        .logout-btn {
+            background-color: #f44336;
+        }
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    
+    <div class="admin-menu">
+        <!-- Existing links -->
+        <a href="/tracking.html">Location Tracking</a>
+        
+        <!-- New link to view registered users -->
+        <a href="http://localhost:3000/api/admin/users">View Registered Users</a>
+        
+        <!-- Optional: Other admin functionalities -->
+        <a href="/location-logs.html">Location History</a>
+        
+        <!-- Logout button -->
+        <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+    </div>
+
+    <script>
+        // Authentication Check
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const userRole = localStorage.getItem('userRole');
+
+            // Verify admin access
+            if (!token || userRole !== 'admin') {
+                alert('Unauthorized access. Redirecting to login.');
+                window.location.href = '/index.html';
+            }
+        });
+
+        // Logout Function
+        function logout() {
+            // Clear authentication data
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userRole');
+            
+            // Redirect to login page
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>
